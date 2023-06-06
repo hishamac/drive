@@ -29,6 +29,7 @@ export class AppService {
 
             const link = `https://drive.google.com/uc?export=view&id=`
             let fileLink
+            let fileId
 
             let folder = await googleDriveService.searchFolder(folderName)
                 .catch((error) => {
@@ -39,24 +40,26 @@ export class AppService {
             if (folder) {
                 console.log(folder)
                 await googleDriveService.saveFile(file.filename, finalPath, 'image/jpg', folder.id).then(res => {
-                    // googleDriveService.makePublic(res.data.id)
-                    googleDriveService.deleteFile(res.data.id)
-                    // fileLink = link + res.data.id
-                }).catch((error) => {
-                    console.error(error);
-                });
-            } else {
-                folder = await googleDriveService.createFolder(folderName);
-                console.log(folder.data)
-                await googleDriveService.saveFile(file.filename, finalPath, 'image/jpg', folder.data.id).then(res => {
-                    googleDriveService.makePublic(res.data.id)
+                    fileId = res.data.id
                     fileLink = link + res.data.id
                 }).catch((error) => {
                     console.error(error);
                 });
+                await googleDriveService.makePublic(fileId)
+            } else {
+                folder = await googleDriveService.createFolder(folderName);
+                console.log(folder.data)
+                await googleDriveService.saveFile(file.filename, finalPath, 'image/jpg', folder.data.id).then(res => {
+                    fileId = res.data.id
+                    fileLink = link + res.data.id
+                }).catch((error) => {
+                    console.error(error);
+                });
+                await googleDriveService.makePublic(fileId)
             }
 
             console.info('File uploaded successfully! ' + fileLink);
+            await googleDriveService.deleteFile(fileId)
 
             // Delete the file on the server
             fs.unlinkSync(finalPath);
@@ -84,7 +87,7 @@ export class AppService {
 
                 const link = `https://drive.google.com/uc?export=view&id=`
                 let fileLink
-                let fileId = ``
+                let fileId
 
                 let folder = await googleDriveService.searchFolder(folderName)
                     .catch((error) => {
@@ -95,24 +98,26 @@ export class AppService {
                 if (folder) {
                     console.log(folder)
                     await googleDriveService.saveFile(file.filename, finalPath, 'image/jpg', folder.id).then(res => {
-                        googleDriveService.makePublic(res.data.id)
+                        fileId = res.data.id
                         fileLink = link + res.data.id
                     }).catch((error) => {
                         console.error(error);
                     });
+                    await googleDriveService.makePublic(fileId)
+
                 } else {
                     folder = await googleDriveService.createFolder(folderName);
                     console.log(folder.data)
                     await googleDriveService.saveFile(file.filename, finalPath, 'image/jpg', folder.data.id).then(res => {
-                        googleDriveService.makePublic(res.data.id)
-                        fileId = "" + res.data.id
+                        fileId = res.data.id
                         fileLink = link + res.data.id
                     }).catch((error) => {
                         console.error(error);
                     });
+                    await googleDriveService.makePublic(fileId)
                 }
 
-                console.info('Files uploaded successfully! ' + fileLink + ' ' + fileId);
+                console.info('File uploaded successfully! ' + fileLink);
                 // fs.unlink(finalPath, (err) => {
                 //     if (err) throw err;
                 //     console.log('path/file.txt was deleted');
@@ -120,6 +125,6 @@ export class AppService {
                 fs.unlinkSync(finalPath)
             })();
         }
-        console.info('File uploaded successfully!')
+        console.info('Files uploaded successfully!')
     }
 }

@@ -96,9 +96,12 @@ export class GoogleDriveService {
     }
 
     deleteFile(fileId: string) {
-        const response = this.driveClient.files.delete({
+        return this.driveClient.files.delete({
             fileId: fileId
-        });
-        console.log(response.data, response.status);
+        }).then(res => {
+            console.log('File Deleted Successfully');
+        }).catch(error => {
+            console.log(error);
+        })
     }
 }
