@@ -59,7 +59,6 @@ export class AppService {
             }
 
             console.info('File uploaded successfully! ' + fileLink);
-            await googleDriveService.deleteFile(fileId)
 
             // Delete the file on the server
             fs.unlinkSync(finalPath);
@@ -126,5 +125,18 @@ export class AppService {
             })();
         }
         console.info('Files uploaded successfully!')
+    }
+
+    async deleteFile(fileId: string) {
+        const driveClientId = process.env.GOOGLE_DRIVE_CLIENT_ID || '';
+        const driveClientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET || '';
+        const driveRedirectUri = process.env.GOOGLE_DRIVE_REDIRECT_URI || '';
+        const driveRefreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN || '';
+
+        await (async () => {
+            const googleDriveService = new GoogleDriveService(driveClientId, driveClientSecret, driveRedirectUri, driveRefreshToken);
+            
+            await googleDriveService.deleteFile(fileId)
+        })();
     }
 }
